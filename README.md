@@ -5,7 +5,7 @@
 从 `1.0.3` 版本开始支持安装时通过创建文件 `/sdcard/crond4android.setup` 或者音量键来控制是否安装命令行
 
 `/sdcard/crond4android.setup` 文件内容为1则自动安装crontab命令，其他则不安装
-> 通常用于解决环境检测时，非必要不推荐安装crontab命令，且安装后会和lsposed内测版冲突，导致lsposed失效，原因暂时未知。建议使用别名方式。
+> 通常用于解决环境检测时，非必要不推荐安装crontab命令，~~且安装后会和lsposed内测版冲突，导致lsposed失效，原因暂时未知。~~建议使用别名方式。
 
 ## 数据目录
 

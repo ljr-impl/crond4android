@@ -371,6 +371,7 @@ textarea#crontabEditor {
     width: 100%;
     height: 100%;
     background: transparent;
+    white-space: nowrap;
     border: none;
     resize: none;
     color: var(--text-primary);

@@ -1,0 +1,93 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '发布版本标签'
+        required: true
+      branch:
+        description: '推送的目标分支'
+        required: true
+      changelog:
+        description: '变更日志内容'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # 2. 生成版本日期
+      - name: Get Version
+        id: get_version
+        run: echo "date=$(TZ='Asia/Shanghai' date +%Y%m%d%H%M)" >> "$GITHUB_OUTPUT"
+
+      # 3. 更新 update.json, module.prop, and CHANGELOG.md
+      - name: Update files
+        run: |
+          # 核心修复：强制统一格式，避免出现 vv 或少 v
+          INPUT_TAG="${{ github.event.inputs.tag }}"
+          VERSION="${INPUT_TAG//v/}"
+          VERSION="v$VERSION"
+          # v1.0.3 -> 103
+          DATE_NUM=$(echo "$VERSION" | tr -cd '0-9')   
+          DATE_HUMAN=$(TZ='Asia/Shanghai' date +%Y/%m/%d)
+          CHANGELOG="${{ github.event.inputs.changelog }}"
+
+          # update.json
+          cat > update.json <<EOF
+          {
+            "version": "$VERSION",
+            "versionCode": $DATE_NUM,
+            "zipUrl": "https://github.com/ljrgov/crond4Android/releases/download/${{ github.event.inputs.tag }}/crond4Android-$VERSION.zip",
+            "changelog": "https://raw.githubusercontent.com/ljrgov/crond4Android/refs/heads/master/CHANGELOG.md"
+          }
+          EOF
+
+          # module.prop
+          sed -i "s/^version=.*/version=$VERSION/" module.prop
+          sed -i "s/^versionCode=.*/versionCode=$DATE_NUM/" module.prop
+
+          # Changelog
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+          {
+            echo "#### Changelog $VERSION - $DATE_HUMAN"
+            echo "$CHANGELOG" | sed 's/^/- /'
+            echo ""
+            cat CHANGELOG.md
+          } > CHANGELOG.tmp && mv CHANGELOG.tmp CHANGELOG.md
+
+      # 4. 提交推送变更
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add update.json module.prop CHANGELOG.md
+          git commit -m "${{ github.event.inputs.tag }}" || echo "No changes to commit"
+          git push origin "${{ github.event.inputs.branch }}" --force
+
+      # 5. 运行构建脚本
+      - name: Run build.sh
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      # 6. 创建GitHub正式发布版本
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: "${{ github.event.inputs.tag }}"
+          files: crond4Android-*.zip
+          generate_release_notes: true
+          body: |
+            #### Changelog ${{ github.event.inputs.tag }}
+            ${{ github.event.inputs.changelog }}

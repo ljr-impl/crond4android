@@ -39,7 +39,7 @@ else
   sleep 0.5
   if is_running; then
     sed -Ei "s/^description=(\[.*][[:space:]]*)?/description=[ ✅ Running ] /g" $MODDIR/module.prop
-    echo "▶ crond 已启动"
+    echo "✅ crond 已启动"
   else
     echo "⚠ crond 启动失败"
   fi

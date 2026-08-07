@@ -41,12 +41,9 @@ body.theme-dark {
 body.theme-light {
     /* Color Palette - Light */
     --bg-color: hsl(220, 15%, 90%);
-    /* 大幅加深整体背景以突出前面的纯白卡片 */
     --bg-color-alt: hsl(0, 0%, 100%);
     --panel-bg: rgba(255, 255, 255, 1);
-    /* 不透明化以抵消毛玻璃重影 */
     --panel-border: rgba(0, 0, 0, 0.15);
-    /* 明显加深边框，明确地划分卡片边缘 */
     --text-primary: hsl(220, 20%, 15%);
     --text-secondary: hsl(220, 15%, 35%);
     --text-muted: hsl(220, 10%, 55%);
@@ -65,11 +62,8 @@ body.theme-light {
     --body-grad-1: rgba(59, 130, 246, 0.08);
     --body-grad-2: rgba(99, 102, 241, 0.08);
     --glass-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    /* 调整阴影使其更加内敛但有力 */
     --panel-header-bg: rgba(245, 247, 250, 1);
-    /* 给Header加上灰色反差背景 */
     --textarea-bg-focus: rgba(0, 0, 0, 0.05);
-    /* 提升激活状态对比度 */
 }
 
 * {
@@ -84,7 +78,7 @@ body {
         radial-gradient(at 0% 0%, var(--body-grad-1) 0, transparent 50%),
         radial-gradient(at 100% 100%, var(--body-grad-2) 0, transparent 50%);
     color: var(--text-primary);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
@@ -143,7 +137,6 @@ body {
 
 h1 {
     font-size: 1.25rem;
-
     font-weight: 700;
     letter-spacing: -0.025em;
 }
@@ -231,9 +224,7 @@ h1 {
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     border-radius: var(--border-radius-lg);
-    /* 重要：限制内层块的方角 */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-    /* 给内部区块再稍微加一点内敛的浮雕深度 */
 }
 
 .panel-header {
@@ -263,7 +254,7 @@ h2 {
     background: rgba(128, 128, 128, 0.1);
     border-radius: 4px;
     color: var(--text-secondary);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
 }
 
 .panel-footer {
@@ -299,7 +290,6 @@ h2 {
 .btn-primary {
     background: var(--primary-color);
     color: white;
-    /* 始终白字保证对比度 */
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -358,6 +348,13 @@ h2 {
     width: 32px;
 }
 
+/* Help (💡) button */
+.btn-help {
+    font-size: 1rem;
+    line-height: 1;
+    padding: 4px 6px;
+}
+
 /* Editor & Log Textareas */
 .editor-container,
 .log-container {
@@ -375,7 +372,7 @@ textarea#crontabEditor {
     border: none;
     resize: none;
     color: var(--text-primary);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
     font-size: 0.9rem;
     line-height: 1.6;
     padding: var(--spacing-md);
@@ -394,7 +391,7 @@ pre#logViewer {
     background: transparent;
     border: none;
     color: var(--text-secondary);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
     font-size: 0.85rem;
     line-height: 1.5;
     padding: var(--spacing-md);
@@ -436,7 +433,8 @@ pre#logViewer {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
-    z-index: 1000;
+    z-index: 3000;
+    pointer-events: none;
 }
 
 .toast {
@@ -451,6 +449,7 @@ pre#logViewer {
     display: flex;
     align-items: center;
     gap: 8px;
+    pointer-events: auto;
 }
 
 .toast.success {
@@ -505,11 +504,15 @@ pre#logViewer {
     justify-content: center;
     z-index: 2000;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .modal-overlay.active {
     opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
 }
 
 .modal-content {
@@ -549,6 +552,177 @@ pre#logViewer {
     gap: var(--spacing-sm);
     background: var(--panel-header-bg);
     border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+}
+
+/* Settings Modal Styles */
+.settings-modal-content {
+    max-width: 480px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-close {
+    padding: 4px;
+    border-radius: 50%;
+}
+
+.settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) 0;
+}
+
+.setting-item:not(:last-child) {
+    border-bottom: 1px solid var(--panel-border);
+}
+
+.setting-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.setting-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.setting-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* Switch Toggle Component */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(128, 128, 128, 0.25);
+    border: 1px solid var(--panel-border);
+    transition: .25s ease;
+    border-radius: 26px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--text-primary);
+    transition: .25s ease;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+    background-color: #ffffff;
+}
+
+/* Cron Help Modal */
+.cron-help-modal-content {
+    max-width: 460px;
+}
+
+.cron-help-body {
+    padding: var(--spacing-lg);
+}
+
+.cron-help-format {
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    background: rgba(128, 128, 128, 0.08);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.cron-help-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.cron-help-table th,
+.cron-help-table td {
+    text-align: left;
+    padding: 6px var(--spacing-sm);
+    border-bottom: 1px solid var(--panel-border);
+}
+
+.cron-help-table th {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.cron-help-examples-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+}
+
+.cron-help-examples {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.cron-help-examples li {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    font-size: 0.85rem;
+}
+
+.cron-help-examples code {
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    background: rgba(128, 128, 128, 0.1);
+    color: var(--primary-color);
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 /* Responsive adjustments */

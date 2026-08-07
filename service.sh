@@ -18,8 +18,10 @@ else
     exit 1
 fi
 if [ ! -f "${MANUAL}" ];then
-    $BUSYBOX ${args}
-    sed -Ei "s/^description=(\[.*][[:space:]]*)?/description=[ ✅ Running ] /g" $MODDIR/module.prop
+    $BUSYBOX ${args} 
+    sleep 0.5
+    PIDS=$($BUSYBOX pgrep -f "${args}" | tr '\n' ' ')
+    sed -Ei "s/^description=(\[.*][[:space:]]*)?/description=[✅ Running | PID:$PIDS] /g" $MODDIR/module.prop
 else
     sed -Ei "s/^description=(\[.*][[:space:]]*)?/description=[ ⏹ Stopped ] /g" $MODDIR/module.prop
 fi

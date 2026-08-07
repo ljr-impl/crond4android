@@ -37,8 +37,10 @@ else
   # 未运行 → 启动
   $BUSYBOX ${args} -l 8
   sleep 0.5
+
   if is_running; then
-    sed -Ei "s/^description=(\[.*][[:space:]]*)?/description=[ ✅ Running ] /g" $MODDIR/module.prop
+    PIDS=$($BUSYBOX pgrep -f "${args}" | tr '\n' ' ')
+    sed -Ei "s/^description=(\[.*][[:space:]]*)?/description=[ ✅ Running | PID:$PIDS] /g" $MODDIR/module.prop
     echo "✅ crond 已启动"
   else
     echo "⚠ crond 启动失败"

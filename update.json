@@ -1,11 +1,4 @@
 {
-    "version": "1.0.4",
-    "versionCode": 104,
-    "zipUrl": "https://github.com/powerAn2020/crond4android/releases/latest/download/crond4android.zip",
-    "changelog": "https://github.com/powerAn2020/crond4android/releases/latest/download/changelog.md"
-}
-
-{
   "version": "1.1.0",
   "versionCode": 110,
   "zipUrl": "https://github.com/ljrgov/crond4Android/releases/download/1.2.9/box_for_root-v1.2.9.zip",

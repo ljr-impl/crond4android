@@ -6,9 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Crond4Android</title>
     <link rel="stylesheet" href="css/style.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
 </head>
 
 <body class="theme-dark">
@@ -32,12 +29,21 @@
                 </div>
                 <div class="action-group">
                     <button class="btn btn-icon btn-ghost" id="btnTheme" title="切换主题">
-                        <!-- Default Moon Icon -->
-                        <svg class="theme-icon moon-icon" viewBox="0 0 24 24" width="18" height="18"
-                            stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
+                        <!-- Auto / System Icon -->
+                        <svg class="theme-icon auto-icon" style="display: none;" viewBox="0 0 24 24" width="18"
+                            height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                        <!-- Moon Icon -->
+                        <svg class="theme-icon moon-icon" style="display: none;" viewBox="0 0 24 24" width="18"
+                            height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
                             stroke-linejoin="round">
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                         </svg>
+                        <!-- Sun Icon -->
                         <svg class="theme-icon sun-icon" style="display: none;" viewBox="0 0 24 24" width="18"
                             height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
                             stroke-linejoin="round">
@@ -55,6 +61,12 @@
                     <button class="btn btn-icon btn-ghost lang-btn" id="btnLang" title="Switch Language">
                         EN
                     </button>
+                    <button class="btn btn-icon btn-ghost" id="btnSettings" title="模块设置" data-i18n-title="btnSettings">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </header>
@@ -66,6 +78,8 @@
                 <div class="panel-header">
                     <div class="panel-title">
                         <h2 data-i18n="configTitle">Crontab 配置</h2>
+                        <button class="btn btn-icon btn-ghost btn-help" id="btnCronHelp" title="用法说明"
+                            data-i18n-title="cronHelpBtnTitle">💡</button>
                     </div>
                     <button class="btn btn-primary" id="btnSaveConfig" disabled>
                         <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
@@ -110,6 +124,90 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- Settings Modal Dialog -->
+    <div id="settingsModal" class="modal-overlay">
+        <div class="glass-panel modal-content settings-modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="settingsTitle">模块设置</h3>
+                <button class="btn btn-icon btn-ghost modal-close" id="btnCloseSettings">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body settings-list">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title" data-i18n="autoStartTitle">开机自启动</div>
+                        <div class="setting-desc" data-i18n="autoStartDesc">开机时自动启动 crond 服务（禁用即创建 MANUAL 文件）</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="switchAutoStart">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title" data-i18n="keepDataTitle">卸载保留数据</div>
+                        <div class="setting-desc" data-i18n="keepDataDesc">卸载模块时保留 /data/adb/crond 配置与日志（创建 KEEP_ON_UNINSTALL 文件）</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="switchKeepData">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cron Help Modal Dialog -->
+    <div id="cronHelpModal" class="modal-overlay">
+        <div class="glass-panel modal-content cron-help-modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="cronHelpTitle">Crontab 用法说明</h3>
+                <button class="btn btn-icon btn-ghost modal-close" id="btnCloseCronHelp">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body cron-help-body">
+                <p class="cron-help-format" data-i18n="cronHelpFormatDesc">格式：分 时 日 月 周 命令</p>
+                <table class="cron-help-table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="cronHelpFieldCol">字段</th>
+                            <th data-i18n="cronHelpRangeCol">取值范围</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td data-i18n="cronHelpTableMin">分钟</td><td data-i18n="cronHelpRangeMin">0-59</td></tr>
+                        <tr><td data-i18n="cronHelpTableHour">小时</td><td data-i18n="cronHelpRangeHour">0-23</td></tr>
+                        <tr><td data-i18n="cronHelpTableDay">日</td><td data-i18n="cronHelpRangeDay">1-31</td></tr>
+                        <tr><td data-i18n="cronHelpTableMonth">月</td><td data-i18n="cronHelpRangeMonth">1-12</td></tr>
+                        <tr><td data-i18n="cronHelpTableWeek">周</td><td data-i18n="cronHelpRangeWeek">0-7（0和7均为周日）</td></tr>
+                    </tbody>
+                </table>
+                <h4 class="cron-help-examples-title" data-i18n="cronHelpExamplesTitle">常用示例</h4>
+                <ul class="cron-help-examples">
+                    <li><code>* * * * *</code><span data-i18n="cronEx1">每分钟执行一次</span></li>
+                    <li><code>*/5 * * * *</code><span data-i18n="cronEx2">每5分钟执行一次</span></li>
+                    <li><code>0 * * * *</code><span data-i18n="cronEx3">每小时整点执行</span></li>
+                    <li><code>0 0 * * *</code><span data-i18n="cronEx4">每天零点执行</span></li>
+                    <li><code>0 9 * * 1-5</code><span data-i18n="cronEx5">工作日每天9点执行</span></li>
+                    <li><code>0 0 1 * *</code><span data-i18n="cronEx6">每月1号零点执行</span></li>
+                </ul>
+                <h4 class="cron-help-examples-title" data-i18n="cronHelpFullExTitle">完整示例</h4>
+                <div class="cron-help-full-example">
+                    <code>0 */6 * * * sh /data/adb/crond/conf/proxy_auto_update.sh > /data/adb/crond/run.log</code>
+                    <p class="muted-text" data-i18n="cronHelpFullExDesc">每 6 小时执行一次脚本并将其标准输出重定向到日志文件。</p>
+                </div>            
+            </div>
+        </div>
     </div>
 
     <!-- Toast Notifications (Dynamic) -->

@@ -4,4 +4,4 @@ version=1.1.0
 versionCode=110
 author=powerAn2020, ljrgov
 description=Busybox Crond with service scripts for Android
-updateJson=https://github.com/powerAn2020/crond4android/releases/latest/download/update.json
+updateJson=https://raw.githubusercontent.com/ljrgov/crond4android/refs/heads/main/update.json

@@ -67,7 +67,7 @@ const locales = {
         cronEx5: '工作日每天9点执行',
         cronEx6: '每月1号零点执行',
         cronHelpFullExTitle: '完整示例',
-        cronHelpFullExDesc: '每 6 小时执行一次脚本并将其标准输出重定向到日志文件。'
+        cronHelpFullExDesc: '完整示例为每 6 小时执行一次脚本'
     },
     'en-US': {
         statusChecking: 'Checking...',
@@ -131,7 +131,7 @@ const locales = {
         cronEx5: 'Run at 9 AM on weekdays',
         cronEx6: 'Run on the 1st of every month at midnight',
         cronHelpFullExTitle: 'Full Example',
-        cronHelpFullExDesc: 'Executes the script every 6 hours and redirects output to log file.'
+        cronHelpFullExDesc: 'Full Example runs every 6 hours'
     }
 };
 

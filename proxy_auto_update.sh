@@ -39,10 +39,9 @@ http_put() {
 $req
 EOF
 )
-    status_line=$(echo "$resp" | head -1)
+    status_line=$(echo "$resp" | head -1 | tr -d '\r')
     # 调试用：想确认实际返回内容时取消下面注释
-    # echo "DEBUG http_put resp: $status_line" >&2
-    # 放宽匹配：任意 2xx 都算成功（200/204等）
+    # echo "DEBUG http_put resp: [$status_line]" >&2
     echo "$status_line" | grep -qE "HTTP/1\.[01] 2[0-9][0-9]"
 }
 

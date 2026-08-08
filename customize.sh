@@ -72,25 +72,36 @@ else
   # done
 fi
 
+...
 # ============ 拓展 ===============
 boxScriptsDir="/data/user/0/com.boxproxy.box/files/box/scripts"
 scriptName="proxy_auto_update.sh"
 confDataDir="${cronDataDir}/conf"
 
 if [ -f "${MODPATH}/${scriptName}" ]; then
-
   if [ -d "${boxScriptsDir}" ]; then
     ui_print "- Copying ${scriptName} to ${boxScriptsDir}..."
     cp -f "${MODPATH}/${scriptName}" "${boxScriptsDir}/${scriptName}"
     chmod 0755 "${boxScriptsDir}/${scriptName}"
+    exampleScriptPath="${boxScriptsDir}/${scriptName}"
+  else
+    exampleScriptPath="${confDataDir}/${scriptName}"
   fi
 
   ui_print "- Moving ${scriptName} to ${confDataDir}..."
   mv -f "${MODPATH}/${scriptName}" "${confDataDir}/${scriptName}"
   chmod 0755 "${confDataDir}/${scriptName}"
-
 else
   ui_print "- 未检测到 ${scriptName}"
+fi
+
+# 更新 WebUI 示例路径 
+webuiHtml="${MODPATH}/webroot/index.html"
+
+if [ -n "${exampleScriptPath}" ] && [ -f "${webuiHtml}" ]; then
+  ui_print "- Updating example path in WebUI..."
+  escapedPath=$(printf '%s' "${exampleScriptPath}" | sed 's/[&\\#]/\\&/g')
+  sed -i "s#/data/adb/crond/conf/proxy_auto_update.sh#${escapedPath}#g" "${webuiHtml}"
 fi
 # ===================================
 

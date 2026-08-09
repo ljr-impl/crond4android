@@ -1,6 +1,6 @@
 {
-  "version": "v1.1.1",
-  "versionCode": 111,
-  "zipUrl": "https://github.com/ljrgov/crond4Android/releases/download/1.1.1/crond4Android-v1.1.1.zip",
+  "version": "v1.1.2",
+  "versionCode": 112,
+  "zipUrl": "https://github.com/ljrgov/crond4Android/releases/download/1.1.2/crond4Android-v1.1.2.zip",
   "changelog": "https://raw.githubusercontent.com/ljrgov/crond4android/refs/heads/main/CHANGELOG.md"
 }

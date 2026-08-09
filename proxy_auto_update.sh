@@ -14,6 +14,7 @@ SINGBOX_SECRET=""  #  Clash API 密钥
 API_HOST="127.0.0.1"
 API_PORT="9090"
 PROVIDER_NAME="subs"   # 多订阅用英文逗号分隔，逗号前后不要空格
+BUILTIN_AUTOUPDATE=true   # true=跳过HTTP PUT重载，false=按原逻辑走
 
 # ===== BusyBox =====
 if [ -x "/data/adb/ksu/bin/busybox" ]; then
@@ -114,6 +115,10 @@ esac
 
 # ===== 重启/重载 Box 服务 =====
 if [ "$ACTION" = "update" ]; then
+    if [ "$BUILTIN_AUTOUPDATE" = "true" ]; then
+        echo "$FILE_NAME skip update subscription"
+        exit 0
+    fi
     fail=0
     fail_list=""
     OLD_IFS="$IFS"

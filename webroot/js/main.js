@@ -11,7 +11,7 @@ const locales = {
         statusStopped: '已停止',
         configTitle: 'Crontab 配置',
         btnSave: '保存配置',
-        configPlaceholder: '正在加载配置文件...',
+        configPlaceholder: '此处填写 cron 定时任务...',
         configHint: '编辑后需点击保存，建议重启进程使其立即生效。',
         logTitle: '运行日志',
         btnClearLog: '清空',
@@ -75,7 +75,7 @@ const locales = {
         statusStopped: 'Stopped',
         configTitle: 'Crontab Config',
         btnSave: 'Save Config',
-        configPlaceholder: 'Loading configuration...',
+        configPlaceholder: 'Enter the cron schedule here...',
         configHint: 'Save after editing. Recommended to restart daemon to apply.',
         logTitle: 'Access Log',
         btnClearLog: 'Clear',
@@ -430,7 +430,7 @@ const UI = {
 const Service = {
     async checkStatus() {
         UI.els.statusText.innerText = I18n.get('statusChecking');
-        const res = await Shell.exec(`pgrep -f 'crond -b -c /data/adb/crond/spool'`);
+        const res = await Shell.exec(`pgrep -f 'crond -c /data/adb/crond/spool'`);
         if (res.stdout.trim() !== '' && res.errno === 0) {
             UI.els.statusBadge.className = 'status-badge running';
             UI.els.statusText.innerText = I18n.get('statusRunning');

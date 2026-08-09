@@ -72,7 +72,6 @@ else
   # done
 fi
 
-...
 # ============ 拓展 ===============
 boxScriptsDir="/data/user/0/com.boxproxy.box/files/box/scripts"
 scriptName="proxy_auto_update.sh"
@@ -80,9 +79,13 @@ confDataDir="${cronDataDir}/conf"
 
 if [ -f "${MODPATH}/${scriptName}" ]; then
   if [ -d "${boxScriptsDir}" ]; then
-    ui_print "- Copying ${scriptName} to ${boxScriptsDir}..."
-    cp -f "${MODPATH}/${scriptName}" "${boxScriptsDir}/${scriptName}"
-    chmod 0755 "${boxScriptsDir}/${scriptName}"
+    if [ -f "${boxScriptsDir}/${scriptName}" ]; then
+      ui_print "- ${boxScriptsDir}/${scriptName} existing, skip copy"
+    else
+      ui_print "- Copying ${scriptName} to ${boxScriptsDir}..."
+      cp -f "${MODPATH}/${scriptName}" "${boxScriptsDir}/${scriptName}"
+      chmod 0755 "${boxScriptsDir}/${scriptName}"
+    fi
     exampleScriptPath="${boxScriptsDir}/${scriptName}"
   else
     exampleScriptPath="${confDataDir}/${scriptName}"

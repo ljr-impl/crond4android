@@ -3,18 +3,19 @@
 export PATH="/product/bin:/apex/com.android.runtime/bin:/system/bin:/system/xbin:/odm/bin:/vendor/bin:$PATH"
 
 # ===== 配置参数 =====
+SYNC_SUBSTORE_API="http://"      # sub store 后端
+DOWNLOAD_URL="https://sing-box_root.json"      
+SINGBOX_SECRET=""                # Clash API 密钥
+API_HOST="127.0.0.1"
+API_PORT="9090"
+PROVIDER_NAME="subs"   # 多订阅用英文逗号分隔，逗号前后不要空格
+BUILTIN_AUTOUPDATE=false    # true=跳过HTTP PUT重载，false=按逻辑走
+
+# ===== 路径 =====
 BOX_HOME="/data/user/0/com.boxproxy.box/files/box"
 BOXCTL="$BOX_HOME/bin/boxctl"
 DB="$BOX_HOME/box.db"
 SINGBOX_DIR="$BOX_HOME/sing-box/"
-
-SYNC_SUBSTORE_API="http://127.0.0.1:3000/api/sync/artifacts"
-DOWNLOAD_URL="https://example.com/sing-box_root.json"
-SINGBOX_SECRET=""  #  Clash API 密钥
-API_HOST="127.0.0.1"
-API_PORT="9090"
-PROVIDER_NAME="subs"   # 多订阅用英文逗号分隔，逗号前后不要空格
-BUILTIN_AUTOUPDATE=true   # true=跳过HTTP PUT重载，false=按原逻辑走
 
 # ===== BusyBox =====
 if [ -x "/data/adb/ksu/bin/busybox" ]; then
@@ -36,12 +37,12 @@ http_put() {
     req=$(printf "PUT %s HTTP/1.1\r\nHost: %s:%s\r\nAuthorization: Bearer %s\r\nContent-Length: 0\r\nConnection: close\r\n\r\n" \
         "$path" "$API_HOST" "$API_PORT" "$token")
 
-    resp=$($BUSYBOX nc -w 8 "$API_HOST" "$API_PORT" <<EOF
+    resp=$($BUSYBOX nc -w 15 "$API_HOST" "$API_PORT" <<EOF
 $req
 EOF
 )
     status_line=$(echo "$resp" | head -1 | tr -d '\r')
-    # 调试用：想确认实际返回内容时取消下面注释
+    # 调试用：确认实际返回内容时取消下面注释
     # echo "DEBUG http_put resp: [$status_line]" >&2
     echo "$status_line" | grep -qE "HTTP/1\.[01] 2[0-9][0-9]"
 }
@@ -54,7 +55,7 @@ TARGET_FILE="$SINGBOX_DIR/$FILE_NAME"
 TEMP_FILE="${TARGET_FILE}.tmp"
 
 # ===== 触发 Sub-Store 同步 =====
-SYNC_RESP=$($BUSYBOX wget -q --timeout=180 --tries=1 -O - "$SYNC_SUBSTORE_API" 2>&1)
+SYNC_RESP=$($BUSYBOX wget -q --timeout=180 --tries=1 -O - "$SYNC_SUBSTORE_API/api/sync/artifacts" 2>&1)
 SYNC_RC=$?
 
 if [ $SYNC_RC -ne 0 ]; then

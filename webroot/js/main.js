@@ -430,7 +430,7 @@ const UI = {
 const Service = {
     async checkStatus() {
         UI.els.statusText.innerText = I18n.get('statusChecking');
-        const res = await Shell.exec(`pgrep -f 'crond -c /data/adb/crond/spool'`);
+        const res = await Shell.exec(`pgrep -f 'crond -c /data/adb/crond/spool -L /data/adb/crond/logs/run.log -l 8'`);
         if (res.stdout.trim() !== '' && res.errno === 0) {
             UI.els.statusBadge.className = 'status-badge running';
             UI.els.statusText.innerText = I18n.get('statusRunning');

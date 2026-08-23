@@ -5,11 +5,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Crond4Android</title>
+    <!-- 在样式表加载/首次绘制之前同步决定主题，避免"先错误主题闪一下再切换"的问题 -->
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem('crond_theme');
+                var mode = 'system';
+                if (saved === 'dark' || saved === 'theme-dark') mode = 'dark';
+                else if (saved === 'light' || saved === 'theme-light') mode = 'light';
+
+                var resolved;
+                if (mode === 'system') {
+                    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    resolved = prefersDark ? 'theme-dark' : 'theme-light';
+                } else {
+                    resolved = mode === 'light' ? 'theme-light' : 'theme-dark';
+                }
+                document.documentElement.classList.add(resolved);
+            } catch (e) {
+                document.documentElement.classList.add('theme-dark');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="theme-dark">
+<body>
     <div class="app-container">
+
         <!-- Header -->
         <header class="glass-panel main-header">
             <div class="brand">
@@ -81,15 +104,27 @@
                         <button class="btn btn-icon btn-ghost btn-help" id="btnCronHelp" title="用法说明"
                             data-i18n-title="cronHelpBtnTitle">💡</button>
                     </div>
-                    <button class="btn btn-primary" id="btnSaveConfig" disabled>
-                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
-                            fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                            <polyline points="7 3 7 8 15 8"></polyline>
-                        </svg>
-                        <span data-i18n="btnSave">保存配置</span>
-                    </button>
+                    <div class="action-group">
+                        <button class="btn btn-outline btn-restart-hint" id="btnRestartHint"
+                            style="display: none;" data-i18n-title="restartHintTooltip" title="配置已保存，点击重启服务使其生效">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <polyline points="1 20 1 14 7 14"></polyline>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                            </svg>
+                            <span data-i18n="btnRestart">重启</span>
+                        </button>
+                        <button class="btn btn-primary" id="btnSaveConfig" disabled>
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                <polyline points="7 3 7 8 15 8"></polyline>
+                            </svg>
+                            <span data-i18n="btnSave">保存配置</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="editor-container">
                     <textarea id="crontabEditor" autocomplete="off" spellcheck="false"

@@ -8,6 +8,14 @@ fi
 
 cronDataDir='/data/adb/crond'
 
+if [ "$KSU" = true ]; then
+  BUSYBOX="/data/adb/ksu/bin/busybox"
+elif [ "$APATCH" = true ]; then
+  BUSYBOX="/data/adb/ap/bin/busybox"
+else
+  BUSYBOX="/data/adb/magisk/busybox"
+fi
+
 if [ -d "${cronDataDir}" ]; then
   ui_print "- Upgrading: checking directories and migrating legacy files..."
   mkdir -p "${cronDataDir}/spool" "${cronDataDir}/logs" "${cronDataDir}/conf"
@@ -23,6 +31,38 @@ else
   mkdir -p "${cronDataDir}/spool" "${cronDataDir}/logs" "${cronDataDir}/conf"
   touch "${cronDataDir}/spool/root"
 fi
+
+# ============ 检测本设备是否支持 cgroup v2 迁移 ===============
+ui_print "- Detecting cgroup v2 escape support on this device..."
+
+test_cgroup2_escape() {
+  CG2=$($BUSYBOX awk '$3=="cgroup2"{print $2; exit}' /proc/mounts 2>/dev/null)
+  [ -z "$CG2" ] && return 1
+  [ -w "${CG2}/cgroup.procs" ] || return 1
+
+  $BUSYBOX sleep 5 &
+  TEST_PID=$!
+  sleep 0.2
+
+  echo "$TEST_PID" > "${CG2}/cgroup.procs" 2>/dev/null
+  RESULT=$($BUSYBOX awk -F: '$1=="0"{print $3}' /proc/${TEST_PID}/cgroup 2>/dev/null)
+  kill "$TEST_PID" 2>/dev/null
+
+  if [ "$RESULT" = "/" ]; then
+    echo "$CG2" > "${cronDataDir}/conf/cg2_path"
+    return 0
+  fi
+  return 1
+}
+
+if test_cgroup2_escape; then
+  ui_print "  -> Yes, use the lightweight cgroup v2 solution"
+  rm -f "${cronDataDir}/conf/USE_WATCHER"
+else
+  ui_print "  -> Not supported, use the permanent watcher solution"
+  touch "${cronDataDir}/conf/USE_WATCHER"
+fi
+# ================================================================
 
 install_crontab(){
   ui_print "- Installing crontab command"
@@ -56,20 +96,7 @@ if [ -f /sdcard/crond4android.setup ]; then
     ui_print "- Skip installation crontab command."
   fi
 else
-  # ui_print "- Press Vol UP to install crontab command"
-  # ui_print "- Other: No"
-  # # 循环检测按键事件
-  # while true ; do
-  #   getevent -lc 1 2>&1 | grep KEY_VOLUME > $TMPDIR/events
-  #   sleep 1
-  #   if $(cat $TMPDIR/events | grep -q KEY_VOLUMEUP) ; then
-  #     install_crontab
-  #     break
-  #   else
-      ui_print "- Skip installation crontab command."
-  #     break
-  #   fi
-  # done
+  ui_print "- Skip installation crontab command."
 fi
 
 # ============ 拓展 ===============
@@ -98,7 +125,6 @@ else
   ui_print "- 未检测到 ${scriptName}"
 fi
 
-# 更新 WebUI 示例路径 
 webuiHtml="${MODPATH}/webroot/index.html"
 
 if [ -n "${exampleScriptPath}" ] && [ -f "${webuiHtml}" ]; then

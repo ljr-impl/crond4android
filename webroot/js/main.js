@@ -23,7 +23,7 @@ const locales = {
         msgLogClearFailed: '日志清空失败',
         msgRestarting: '进程重启指令已下发...',
         confirmClear: '确定要清空运行日志吗？',
-        btnWait: '请稍候...',
+        btnWait: '重启',
         btnStart: '启动',
         btnStop: '停止',
         titleStart: '启动服务',
@@ -67,7 +67,11 @@ const locales = {
         cronEx5: '工作日每天9点执行',
         cronEx6: '每月1号零点执行',
         cronHelpFullExTitle: '完整示例',
-        cronHelpFullExDesc: '完整示例为每 6 小时执行一次脚本'
+        cronHelpFullExDesc: '完整示例为每 6 小时执行一次脚本',
+        btnRestart: '重启',
+        restartHintTooltip: '配置已保存，点击重启服务使其生效',
+        msgRestartSuccess: '服务已重启并正常运行',
+        msgRestartFailed: '重启后服务未正常运行，请检查日志'
     },
     'en-US': {
         statusChecking: 'Checking...',
@@ -87,7 +91,7 @@ const locales = {
         msgLogClearFailed: 'Failed to clear log',
         msgRestarting: 'Restart command issued...',
         confirmClear: 'Are you sure you want to clear the logs?',
-        btnWait: 'Wait...',
+        btnWait: 'Restart',
         btnStart: 'Start',
         btnStop: 'Stop',
         titleStart: 'Start Service',
@@ -131,7 +135,11 @@ const locales = {
         cronEx5: 'Run at 9 AM on weekdays',
         cronEx6: 'Run on the 1st of every month at midnight',
         cronHelpFullExTitle: 'Full Example',
-        cronHelpFullExDesc: 'Full Example runs every 6 hours'
+        cronHelpFullExDesc: 'Full Example runs every 6 hours',
+        btnRestart: 'Restart',
+        restartHintTooltip: 'Config saved — click to restart the service and apply it',
+        msgRestartSuccess: 'Service restarted and running',
+        msgRestartFailed: 'Service is not running after restart, please check the log'
     }
 };
 
@@ -250,7 +258,10 @@ const Theme = {
 
     apply() {
         const resolvedTheme = this.getResolvedTheme();
-        document.body.className = resolvedTheme;
+        // 与 <head> 中的内联初始化脚本保持一致，作用在 <html> 而非 <body> 上，
+        // 这样首屏渲染前就已经是正确的主题，不会有旧主题闪一下再切换的问题
+        document.documentElement.classList.remove('theme-dark', 'theme-light');
+        document.documentElement.classList.add(resolvedTheme);
 
         // 更新图标显示与按钮提示
         const auto = document.querySelector('.auto-icon');
@@ -302,8 +313,8 @@ class Shell {
                 // Mock 环境：本地浏览器调试时使用
                 console.warn('[Mock Shell] Executing:', command);
                 setTimeout(() => {
-                    if (command.includes('pidof crond') || command.includes('grep crond')) {
-                        resolve({ errno: 0, stdout: '12345\n', stderr: '' });
+                    if (command.includes('crond.pid')) {
+                        resolve({ errno: 0, stdout: 'running\n', stderr: '' });
                     } else if (command.includes('base64 -d')) {
                         resolve({ errno: 0, stdout: '', stderr: '' });
                     } else if (command.includes('cat /data/adb/crond/spool/root')) {
@@ -337,6 +348,7 @@ const UI = {
         statusBadge: document.getElementById('statusBadge'),
         statusText: document.getElementById('statusText'),
         btnSaveConfig: document.getElementById('btnSaveConfig'),
+        btnRestartHint: document.getElementById('btnRestartHint'),
         crontabEditor: document.getElementById('crontabEditor'),
         btnRefreshLog: document.getElementById('btnRefreshLog'),
         btnClearLog: document.getElementById('btnClearLog'),
@@ -357,7 +369,8 @@ const UI = {
     state: {
         initialConfig: '',
         currentConfig: '',
-        logAutoRefreshTimer: null
+        logAutoRefreshTimer: null,
+        logAutoRefreshWasOn: false
     },
 
     toast(msg, type = 'info') {
@@ -430,7 +443,7 @@ const UI = {
 const Service = {
     async checkStatus() {
         UI.els.statusText.innerText = I18n.get('statusChecking');
-        const res = await Shell.exec(`pgrep -f 'crond -c /data/adb/crond/spool -L /data/adb/crond/logs/run.log -l 8'`);
+        const res = await Shell.exec(`pgrep -f 'crond *-c /data/adb/crond/spool -L /data/adb/crond/logs/run.log -l 8'`);
         if (res.stdout.trim() !== '' && res.errno === 0) {
             UI.els.statusBadge.className = 'status-badge running';
             UI.els.statusText.innerText = I18n.get('statusRunning');
@@ -459,6 +472,8 @@ const Service = {
             UI.toast(I18n.get('msgSaveSuccess'), 'success');
             UI.state.initialConfig = newContent;
             UI.els.btnSaveConfig.disabled = true;
+            // 保存成功后才提示重启，避免用户忘记让新配置生效
+            UI.els.btnRestartHint.style.display = 'inline-flex';
         } else {
             UI.toast(I18n.get('msgSaveFailed') + res.stderr, 'error');
         }
@@ -490,6 +505,21 @@ const Service = {
         }
     },
 
+    // 页面切到后台时暂停日志轮询，回到前台且之前处于开启状态时恢复，避免无谓的后台 shell 调用
+    pauseLogAutoRefreshForBackground() {
+        if (document.hidden) {
+            if (UI.state.logAutoRefreshTimer) {
+                clearInterval(UI.state.logAutoRefreshTimer);
+                UI.state.logAutoRefreshTimer = null;
+                UI.state.logAutoRefreshWasOn = true;
+            }
+        } else if (UI.state.logAutoRefreshWasOn) {
+            UI.state.logAutoRefreshWasOn = false;
+            this.loadLog();
+            UI.state.logAutoRefreshTimer = setInterval(() => this.loadLog(), 3000);
+        }
+    },
+
     async clearLog() {
         const res = await Shell.exec(`echo "" > /data/adb/crond/logs/run.log`);
         if (res.errno === 0) {
@@ -514,6 +544,26 @@ const Service = {
             await this.checkStatus();
             UI.els.statusBadge.style.pointerEvents = 'auto';
         }, 1000);
+    },
+
+    async restartAfterSaveConfig() {
+        UI.setLoading(UI.els.btnRestartHint, true);
+
+        const cmd = `/data/adb/modules/crond4android/action.sh restart`;
+        await Shell.exec(cmd);
+
+        await new Promise(r => setTimeout(r, 800));
+
+        await this.checkStatus();
+        UI.setLoading(UI.els.btnRestartHint, false);
+
+        if (UI.els.statusBadge.classList.contains('running')) {
+            UI.toast(I18n.get('msgRestartSuccess'), 'success');
+            UI.els.btnRestartHint.style.display = 'none';
+        } else {
+            // 重启未成功，保留按钮以便用户重试
+            UI.toast(I18n.get('msgRestartFailed'), 'error');
+        }
     },
 
     async loadSettings() {
@@ -583,6 +633,8 @@ function bindEvents() {
 
     UI.els.btnRefreshLog.addEventListener('click', () => Service.toggleLogAutoRefresh());
 
+    document.addEventListener('visibilitychange', () => Service.pauseLogAutoRefreshForBackground());
+
     UI.els.btnClearLog.addEventListener('click', async () => {
         if (await UI.confirm(I18n.get('confirmClear'))) {
             Service.clearLog();
@@ -590,6 +642,8 @@ function bindEvents() {
     });
 
     UI.els.btnSaveConfig.addEventListener('click', () => Service.saveConfig());
+
+    UI.els.btnRestartHint.addEventListener('click', () => Service.restartAfterSaveConfig());
 
     UI.els.crontabEditor.addEventListener('input', (e) => {
         if (e.target.value !== UI.state.initialConfig) {

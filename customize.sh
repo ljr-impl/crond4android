@@ -56,7 +56,7 @@ test_cgroup2_escape() {
 }
 
 if test_cgroup2_escape; then
-  ui_print "  -> Yes, use the lightweight cgroup v2 solution"
+  ui_print "  -> Supported, use the lightweight cgroup v2 solution"
   rm -f "${cronDataDir}/conf/USE_WATCHER"
 else
   ui_print "  -> Not supported, use the permanent watcher solution"

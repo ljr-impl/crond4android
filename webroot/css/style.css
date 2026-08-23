@@ -10,7 +10,7 @@
     --spacing-lg: 24px;
 }
 
-body.theme-dark {
+html.theme-dark {
     /* Color Palette - Dark */
     --bg-color: hsl(220, 15%, 8%);
     --bg-color-alt: hsl(220, 15%, 12%);
@@ -38,7 +38,7 @@ body.theme-dark {
     --textarea-bg-focus: rgba(0, 0, 0, 0.15);
 }
 
-body.theme-light {
+html.theme-light {
     /* Color Palette - Light */
     --bg-color: hsl(220, 15%, 90%);
     --bg-color-alt: hsl(0, 0%, 100%);
@@ -231,6 +231,8 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    row-gap: var(--spacing-sm);
     padding: var(--spacing-md);
     border-bottom: 1px solid var(--panel-border);
     background: var(--panel-header-bg);
@@ -279,6 +281,8 @@ h2 {
     transition: all var(--transition-speed);
     outline: none;
     border: none;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .btn:disabled {
@@ -340,6 +344,37 @@ h2 {
 .action-group {
     display: flex;
     gap: var(--spacing-sm);
+}
+
+/* Restart Hint Button (shown only after config is saved) */
+.btn-restart-hint {
+    background: var(--warn-bg);
+    border: 1px solid rgba(241, 196, 15, 0.35);
+    color: var(--warn-color);
+    animation: restartHintIn 0.25s ease;
+}
+
+.btn-restart-hint:hover:not(:disabled) {
+    background: var(--warn-color);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(241, 196, 15, 0.3);
+}
+
+.btn-restart-hint:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+@keyframes restartHintIn {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .lang-btn {

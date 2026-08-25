@@ -1,3 +1,6 @@
+#### Changelog v1.1.7 - 2026/08/26
+- Fix and improve
+
 #### Changelog v1.1.7 - 2026/08/23
 - 修复和提升
 

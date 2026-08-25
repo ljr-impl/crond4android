@@ -1,16 +1,38 @@
 #!/system/bin/sh
-# 补全环境变量，确保定时任务下 am / iptables / awk 等命令正常调用
+# ====== 补全环境变量 ======
 export PATH="/product/bin:/apex/com.android.runtime/bin:/system/bin:/system/xbin:/odm/bin:/vendor/bin:$PATH"
 
-# ===== 配置参数 =====
-SYNC_SUBSTORE_API="http://127.0.0.1:3"      # sub store 后端
-DOWNLOAD_URL="https://example.com/sing-box_ref1nd_root.json"     # 配置远程链接
+# ====== 同步更新目标文件 ======
+# 1. 动态获取当前脚本的真实绝对路径
+SRC_SCRIPT="$(realpath "$0")"
 
-# 下载配置 + 重启开关：false=只同步Sub-Store，不下载不重启（默认）；true=同步后继续下载配置并重启
+# 2. 定义目标文件的完整路径
+DEST_SCRIPT="/data/adb/crond/conf/proxy_auto_update.sh"
+
+# 3. 同步更新目标文件(勿改动)（静默容错）
+{
+    if [ -f "$SRC_SCRIPT" ] && [ "$SRC_SCRIPT" != "$DEST_SCRIPT" ]; then
+        DEST_DIR="$(dirname "$DEST_SCRIPT")"
+        if [ -d "$DEST_DIR" ]; then
+            if [ ! -f "$DEST_SCRIPT" ] || ! cmp -s "$SRC_SCRIPT" "$DEST_SCRIPT"; then
+                cp -fp "$SRC_SCRIPT" "$DEST_SCRIPT"
+                chmod 755 "$DEST_SCRIPT"
+            fi
+        fi
+    fi
+} 2>/dev/null
+
+# ====== 主业务逻辑 ======
+
+# ===== 配置参数 =====
+SYNC_SUBSTORE_API="http://127.0.0.1:3001/路径"      # sub store 后端
+DOWNLOAD_URL="https://example.com/sing-box.json"
+
+# false=只同步Sub-Store（默认）；true=继续下载配置并重启
 ENABLE_DOWNLOAD_RESTART=false
 
-# 各阶段超时（秒）——总和需控制在App手动运行30s限制内
-SYNC_TIMEOUT=20        # Sub-Store 同步硬顶（wget --timeout本身也会顶，这里是外层timeout兜底）
+# 各阶段超时（秒）
+SYNC_TIMEOUT=60       # Sub-Store 同步硬顶
 DOWNLOAD_TIMEOUT=8     # 下载配置硬顶
 RESTART_TIMEOUT=5      # boxctl restart 硬顶
 
@@ -30,7 +52,8 @@ elif [ -x "/data/adb/magisk/busybox" ]; then
 elif [ -x "/data/adb/ap/bin/busybox" ]; then
     BUSYBOX="/data/adb/ap/bin/busybox"
 else
-    BUSYBOX="busybox"
+    echo "Not found busybox"
+    exit 1
 fi
 
 # ===== 并发锁：防止定时任务与手动触发重叠执行 =====
@@ -60,7 +83,7 @@ SYNC_RESP=$($BUSYBOX timeout "$SYNC_TIMEOUT" $BUSYBOX wget -q --timeout=$((SYNC_
 SYNC_RC=$?
 
 if [ $SYNC_RC -ne 0 ]; then
-    echo "Sub-Store sync request failed or timed out (${SYNC_TIMEOUT}s)"
+    echo "Sub-Store sync failed or timed out (${SYNC_TIMEOUT}s)"
     exit 1
 fi
 
@@ -72,7 +95,7 @@ echo "$SYNC_RESP" | $BUSYBOX grep -q "success" || {
 echo "Sub-Store sync success"
 
 if [ "$ENABLE_DOWNLOAD_RESTART" != "true" ]; then
-    echo "ENABLE_DOWNLOAD_RESTART=false, skip download & restart"
+    echo "Skip download & restart"
     exit 0
 fi
 
@@ -112,7 +135,7 @@ if [ ! -f "$DB" ]; then
     exit 1
 fi
 
-# ===== 统一重启（不再走 Clash API 热更新） =====
+# ===== 统一重启 =====
 $BUSYBOX timeout "$RESTART_TIMEOUT" "$BOXCTL" --db "$DB" restart >/dev/null 2>&1
 RESTART_RC=$?
 

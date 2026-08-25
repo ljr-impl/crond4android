@@ -99,38 +99,30 @@ else
   ui_print "- Skip installation crontab command."
 fi
 
-# ============ 拓展 ===============
+# ============ 拓展处理===============
 boxScriptsDir="/data/user/0/com.boxproxy.box/files/box/scripts"
 scriptName="proxy_auto_update.sh"
 confDataDir="${cronDataDir}/conf"
 
 if [ -f "${MODPATH}/${scriptName}" ]; then
-  if [ -d "${boxScriptsDir}" ]; then
-    if [ -f "${boxScriptsDir}/${scriptName}" ]; then
-      ui_print "- ${boxScriptsDir}/${scriptName} existing, skip copy"
-    else
+  if [ -d "${boxScriptsDir}" ] && [ -f "${boxScriptsDir}/${scriptName}" ]; then
+    ui_print "- Copying existing ${scriptName} from ${boxScriptsDir} to ${confDataDir}..."
+    cp -f "${boxScriptsDir}/${scriptName}" "${confDataDir}/${scriptName}"
+    chmod 0755 "${confDataDir}/${scriptName}"
+    rm -f "${MODPATH}/${scriptName}"
+  else
+    if [ -d "${boxScriptsDir}" ]; then
       ui_print "- Copying ${scriptName} to ${boxScriptsDir}..."
       cp -f "${MODPATH}/${scriptName}" "${boxScriptsDir}/${scriptName}"
       chmod 0755 "${boxScriptsDir}/${scriptName}"
     fi
-    exampleScriptPath="${boxScriptsDir}/${scriptName}"
-  else
-    exampleScriptPath="${confDataDir}/${scriptName}"
+
+    ui_print "- Moving ${scriptName} to ${confDataDir}..."
+    mv -f "${MODPATH}/${scriptName}" "${confDataDir}/${scriptName}"
+    chmod 0755 "${confDataDir}/${scriptName}"
   fi
-
-  ui_print "- Moving ${scriptName} to ${confDataDir}..."
-  mv -f "${MODPATH}/${scriptName}" "${confDataDir}/${scriptName}"
-  chmod 0755 "${confDataDir}/${scriptName}"
 else
-  ui_print "- 未检测到 ${scriptName}"
-fi
-
-webuiHtml="${MODPATH}/webroot/index.html"
-
-if [ -n "${exampleScriptPath}" ] && [ -f "${webuiHtml}" ]; then
-  ui_print "- Updating example path in WebUI..."
-  escapedPath=$(printf '%s' "${exampleScriptPath}" | sed 's/[&\\#]/\\&/g')
-  sed -i "s#/data/adb/crond/conf/proxy_auto_update.sh#${escapedPath}#g" "${webuiHtml}"
+  ui_print "- Not found ${scriptName}"
 fi
 # ===================================
 

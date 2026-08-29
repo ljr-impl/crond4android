@@ -4,9 +4,8 @@ cronDataDir='/data/adb/crond'
 
 MANUAL="${cronDataDir}/conf/MANUAL"
 USE_WATCHER="${cronDataDir}/conf/USE_WATCHER"
-CROND_ARGS="crond -c ${cronDataDir}/spool -L ${cronDataDir}/logs/run.log -l 8"
+CROND_ARGS="crond -b -c ${cronDataDir}/spool -L ${cronDataDir}/logs/run.log -l 8"
 
-# sleep 10
 
 if [ "$KSU" = "true" ] || [ -d "/data/adb/ksu" ]; then
     BUSYBOX="/data/adb/ksu/bin/busybox"
@@ -22,7 +21,7 @@ mkdir -p "${cronDataDir}/spool" "${cronDataDir}/logs" "${cronDataDir}/conf"
 
 if [ ! -f "${MANUAL}" ]; then
     $BUSYBOX pkill -f "${CROND_ARGS}" >/dev/null 2>&1
-    $BUSYBOX setsid $BUSYBOX ${CROND_ARGS} >/dev/null 2>&1 &
+    $BUSYBOX ${CROND_ARGS} >/dev/null 2>&1
     sleep 0.5
 
     PIDS=$($BUSYBOX pgrep -f "${CROND_ARGS}" | tr '\n' ' ' | xargs)

@@ -1,7 +1,7 @@
 #!/system/bin/sh
 MODDIR="${0%/*}"
 cronDataDir='/data/adb/crond'
-CROND_ARGS="crond -c ${cronDataDir}/spool -L ${cronDataDir}/logs/run.log -l 8"
+CROND_ARGS="crond -b -c ${cronDataDir}/spool -L ${cronDataDir}/logs/run.log -l 8"
 CTRL_FIFO="${cronDataDir}/conf/ctrl.fifo"
 
 if [ "$KSU" = "true" ] || [ -d "/data/adb/ksu" ]; then
@@ -21,7 +21,7 @@ is_running() {
 start_crond() {
     if ! is_running; then
         mkdir -p "${cronDataDir}/spool" "${cronDataDir}/logs" "${cronDataDir}/conf"
-        $BUSYBOX setsid $BUSYBOX ${CROND_ARGS} >/dev/null 2>&1 &
+        $BUSYBOX ${CROND_ARGS} >/dev/null 2>&1
         sleep 0.5
     fi
     PIDS=$($BUSYBOX pgrep -f "${CROND_ARGS}" | tr '\n' ' ' | xargs)

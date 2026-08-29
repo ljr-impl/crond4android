@@ -1,7 +1,7 @@
 #!/system/bin/sh
 cronDataDir='/data/adb/crond'
 MODDIR="${0%/*}"
-CROND_ARGS="crond -c ${cronDataDir}/spool -L ${cronDataDir}/logs/run.log -l 8"
+CROND_ARGS="crond -b -c ${cronDataDir}/spool -L ${cronDataDir}/logs/run.log -l 8"
 CTRL_FIFO="${cronDataDir}/conf/ctrl.fifo"
 CG2_FILE="${cronDataDir}/conf/cg2_path"
 USE_WATCHER="${cronDataDir}/conf/USE_WATCHER"
@@ -23,7 +23,7 @@ is_running() {
 start_crond_direct() {
     if ! is_running; then
         mkdir -p "${cronDataDir}/spool" "${cronDataDir}/logs" "${cronDataDir}/conf"
-        $BUSYBOX setsid $BUSYBOX ${CROND_ARGS} >/dev/null 2>&1 &
+        $BUSYBOX ${CROND_ARGS} >/dev/null 2>&1
         sleep 0.5
     fi
     if is_running; then

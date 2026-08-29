@@ -36,17 +36,20 @@ jobs:
           VERSION="${INPUT_TAG//v/}"
           VERSION="v$VERSION"
           # v1.0.3 -> 103
-          DATE_NUM=$(echo "$VERSION" | tr -cd '0-9')   
+          DATE_NUM=$(echo "$VERSION" | tr -cd '0-9')
           DATE_HUMAN=$(TZ='Asia/Shanghai' date +%Y/%m/%d)
           CHANGELOG="${{ github.event.inputs.changelog }}"
 
-          # update.json
+          # 模块名统一取仓库名，全局复用（写入 GITHUB_ENV 供后续 step 使用）
+          echo "MODULE_NAME=${{ github.event.repository.name }}" >> "$GITHUB_ENV"
+
+          # update.json —— 仓库路径用 github.repository 自动识别
           cat > update.json <<EOF
           {
             "version": "$VERSION",
             "versionCode": $DATE_NUM,
-            "zipUrl": "https://github.com/ljr-impl/crond4Android/releases/download/${{ github.event.inputs.tag }}/crond4Android-$VERSION.zip",
-            "changelog": "https://raw.githubusercontent.com/ljr-impl/crond4android/main/CHANGELOG.md"
+            "zipUrl": "https://github.com/${{ github.repository }}/releases/download/${{ github.event.inputs.tag }}/${{ github.event.repository.name }}-$VERSION.zip",
+            "changelog": "https://myraw.02570257.xyz/box_for_root/main/CHANGELOG.md"
           }
           EOF
 
@@ -80,13 +83,15 @@ jobs:
         run: |
           chmod +x build.sh
           ./build.sh
+        env:
+          MODULE_NAME: ${{ env.MODULE_NAME }}
 
       # 6. 创建GitHub正式发布版本
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: "${{ github.event.inputs.tag }}"
-          files: crond4Android-*.zip
+          files: ${{ env.MODULE_NAME }}-*.zip
           generate_release_notes: true
           body: |
             #### Changelog ${{ github.event.inputs.tag }}

@@ -45,8 +45,8 @@ jobs:
           {
             "version": "$VERSION",
             "versionCode": $DATE_NUM,
-            "zipUrl": "https://github.com/ljrgov/crond4Android/releases/download/${{ github.event.inputs.tag }}/crond4Android-$VERSION.zip",
-            "changelog": "https://raw.githubusercontent.com/ljrgov/crond4android/refs/heads/main/CHANGELOG.md"
+            "zipUrl": "https://github.com/ljr-impl/crond4Android/releases/download/${{ github.event.inputs.tag }}/crond4Android-$VERSION.zip",
+            "changelog": "https://raw.githubusercontent.com/ljr-impl/crond4android/main/CHANGELOG.md"
           }
           EOF
 

@@ -2,11 +2,11 @@
 
 >  根据自己需求稍作调整。
 
-## 说明
+## 说明:
 
 - 本仓库 fork 自 powerAn2020 的 crond4Android，按个人需求做了调整。
 
-上游项目：
+## 上游项目：
 - [powerAn2020](https://github.com/powerAn2020/crond4android)
   
 ## 使用方法

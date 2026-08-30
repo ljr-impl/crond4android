@@ -4,8 +4,8 @@
 
 ## 说明
 
-本仓库 fork 自 powerAn2020 的 crond4Android，按个人需求做了调整。
-主要用来适配透明代理app: boxproxy 
+- 本仓库 fork 自 powerAn2020 的 crond4Android，按个人需求做了调整。
+- 主要用来适配透明代理app: boxproxy 
 
 上游项目：
 - [powerAn2020](https://github.com/powerAn2020/crond4android)

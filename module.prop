@@ -2,6 +2,6 @@ id=crond4android
 name=Crond For Android
 version=v1.1.7
 versionCode=117
-author=powerAn2020, ljrgov
+author=powerAn2020, ljr-impl
 description=Busybox Crond with service scripts for Android
-updateJson=https://myraw.02570257.xyz/crond4android/main/update.json?token=crond
+updateJson=https://raw.githubusercontent.com/ljr-impl/crond4android/main/update.json

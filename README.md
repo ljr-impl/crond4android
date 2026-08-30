@@ -1,6 +1,6 @@
 # crond4Android
 
->  根据自己需求稍作调整。
+>  安卓端 busybox cron
 
 ## 说明:
 

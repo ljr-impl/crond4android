@@ -1,3 +1,6 @@
+#### Changelog v1.1.7 - 2026/09/13
+- fix and improved
+
 #### Changelog v1.1.7 - 2026/09/07
 - Fix and improved
 
